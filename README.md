@@ -10,7 +10,7 @@ This project is a document ingestion and question-answering system that uses Ret
 2. **Frontend**: A React interface for uploading files, displaying file contents, and submitting questions.
 3. **Python Script**: A script for vector generation and topic modeling.
 4. **Pinecone**: A vector database for storing and searching document text fragments.
-5. **AI API Integration**: Integration with the Claude 3.5 API or GPT-4 API for text analysis and question-answering.
+5. **AI API Integration**: Integration with the Mistrall API for text analysis and question-answering.
 
 ## Features
 
@@ -102,7 +102,37 @@ npm start
 
 To resolve errors with Pinecone, you may need to temporarily delete or modify validators if an error appears in `validateProperties.js`. Try updating or reinstalling the Pinecone module if this error persists.
 
+### **pdf-parse package error.**
+   Comment the if(isDebugMode) statement in node_modules/pdf-parse/index.js
 ## Notes
 
 - **RAG Support**: With each query, the system retrieves relevant chunks from Pinecone, adding them to the query context sent to the AI model.
 - **Model Configuration**: Verify that all API keys and URLs are correct for the AI API to function properly.
+
+
+### Approach
+
+1. **Document Ingestion**: 
+   I set up an Express backend to handle file uploads, allowing users to submit PDF or plain text files. Upon upload, the backend processes the file by reading its content, splitting it into manageable chunks, and then vectorizing these chunks.
+
+2. **Vectorization and Pinecone Integration**: 
+   Each chunk is converted to a vector using a pre-trained embedding model, and the resulting vectors are stored in Pinecone with metadata for easy retrieval.
+3. **Retrieval-Augmented Generation (RAG)**: 
+   When a user submits a question, the system generates a vector for the question and uses Pinecone to find the most relevant document chunks. These chunks are then used to enhance the context of the question, which is submitted to the AI model to generate a highly contextualized response.
+
+4. **Frontend**: 
+   Built a React interface that allows users to upload files, view file content, and ask questions. It also displays file processing status for a smoother user experience.
+
+### Challenges Faced
+
+1. **Pinecone Integration**: 
+   Some errors arose from incorrect parameter usage, like wrapping query parameters incorrectly or mismatched vector dimensions. Ensuring that vectors’ dimensions matched the Pinecone index setting (1700 for this setup) was essential but required troubleshooting.
+
+2. **Dynamic Path Issues in ES Modules**: 
+   Using ES modules in Node.js meant that common methods like `__dirname` were unavailable. I resolved this by using `fileURLToPath` and `path` modules to dynamically handle paths.
+
+3. **AI API Context Limitations**: 
+   I had to carefully design how much context (from retrieved document chunks) to include in queries sent to the AI API due to token limits. This was particularly important to keep responses relevant without exceeding the model’s input capacity.
+
+4. **Debugging External Module Errors**: 
+   Some errors in Pinecone’s module validators required either updating, reinstalling, or even temporarily modifying modules like `validateProperties.js` to keep the project running smoothly.
