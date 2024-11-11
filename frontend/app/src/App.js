@@ -7,7 +7,7 @@ export default function App() {
     const [file, setFile] = useState(null);
     const [fileContent, setFileContent] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isFileUploaded, setIsFileUploaded] = useState(false); // Новое состояние
+    const [isFileUploaded, setIsFileUploaded] = useState(false);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -17,7 +17,7 @@ export default function App() {
         e.preventDefault();
 
         if (!file) {
-            alert("Пожалуйста, выберите файл для загрузки.");
+            alert("Please select a file to upload.");
             return;
         }
 
@@ -25,7 +25,7 @@ export default function App() {
         formData.append('file', file);
 
         setIsLoading(true);
-        setIsFileUploaded(false); // Сбрасываем состояние
+        setIsFileUploaded(false);
 
         try {
             const { data } = await axios.post('http://localhost:3050/upload', formData, {
@@ -34,13 +34,13 @@ export default function App() {
                 },
             });
 
-            console.log("Ответ от /upload:", data);
+            console.log("Response from /upload:", data);
             setFileContent(data.content);
-            setIsFileUploaded(true); // Устанавливаем состояние
-            alert("Файл успешно загружен и обработан.");
+            setIsFileUploaded(true);
+            alert("File uploaded and processed successfully.");
         } catch (error) {
-            console.error("Ошибка при загрузке файла:", error.response ? error.response.data : error.message);
-            alert("Ошибка при загрузке файла.");
+            console.error("Error uploading file:", error.response ? error.response.data : error.message);
+            alert("Error uploading file.");
         } finally {
             setIsLoading(false);
         }
@@ -50,7 +50,7 @@ export default function App() {
         e.preventDefault();
 
         if (!isFileUploaded) {
-            alert("Please upload a file before sending a message.");
+            alert("Please upload a file before sending a question.");
             return;
         }
 
@@ -61,68 +61,81 @@ export default function App() {
             console.log("Response from /chat:", data);
             setResponse(data.response);
         } catch (error) {
-            console.error("Error sending the question:", error.response ? error.response.data : error.message);
-            alert("Error processing the question.");
+            console.error("Error sending question:", error.response ? error.response.data : error.message);
+            alert("Error processing question.");
         }
     };
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>Upload file and ask questions.</h1>
-            
-            <form onSubmit={handleFileUpload} style={styles.form}>
-                <input type="file" accept=".pdf, .txt" onChange={handleFileChange} style={styles.fileInput} />
-                <button type="submit" style={styles.uploadButton}>
-                    {isLoading ? "Loading" : "Upload file"}
-                </button>
-            </form>
+        <div style={styles.page}>
+            <div style={styles.container}>
+                <h1 style={styles.header}>Upload File and Ask Questions</h1>
+                
+                <form onSubmit={handleFileUpload} style={styles.form}>
+                    <input type="file" accept=".pdf, .txt" onChange={handleFileChange} style={styles.fileInput} />
+                    <button type="submit" style={styles.uploadButton}>
+                        {isLoading ? "Loading..." : "Upload File"}
+                    </button>
+                </form>
 
-            {isLoading && <div style={styles.loading}>Processing the file...</div>}
+                {isLoading && <div style={styles.loading}>Processing the file...</div>}
 
-            {fileContent && (
-                <div style={styles.fileContentContainer}>
-                    <h2 style={styles.subHeader}>File contents:</h2>
-                    <pre style={styles.fileContent}>{fileContent}</pre>
-                </div>
-            )}
-            
-            <form onSubmit={handleSubmit} style={styles.form}>
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Ask a question about the files content."
-                    style={styles.input}
-                />
-                <button type="submit" style={styles.submitButton}>Send a question</button>
-            </form>
+                {fileContent && (
+                    <div style={styles.fileContentContainer}>
+                        <h2 style={styles.subHeader}>File Contents:</h2>
+                        <pre style={styles.fileContent}>{fileContent}</pre>
+                    </div>
+                )}
+                
+                <form onSubmit={handleSubmit} style={styles.form}>
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Ask a question about the file's content."
+                        style={styles.input}
+                    />
+                    <button type="submit" style={styles.submitButton}>Send Question</button>
+                </form>
 
-            {response && (
-                <div style={styles.responseContainer}>
-                    <h2 style={styles.subHeader}>Response:</h2>
-                    <p style={styles.responseText}>{response}</p>
-                </div>
-            )}
+                {response && (
+                    <div style={styles.responseContainer}>
+                        <h2 style={styles.subHeader}>Response:</h2>
+                        <p style={styles.responseText}>{response}</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
 
-// Стили
+// Dark Theme Styles with Global Background
 const styles = {
+    page: {
+        backgroundColor: '#121212', // Dark background for the entire page
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#e0e0e0',
+    },
     container: {
         padding: '20px',
         fontFamily: 'Arial, sans-serif',
         maxWidth: '600px',
-        margin: '0 auto',
         textAlign: 'center',
+        backgroundColor: '#1f1f1f',
+        color: '#e0e0e0',
+        borderRadius: '10px',
+        boxShadow: '0 0 10px rgba(0,0,0,0.5)',
     },
     header: {
-        color: '#333',
+        color: '#bb86fc',
         fontSize: '24px',
         fontWeight: 'bold',
     },
     subHeader: {
-        color: '#666',
+        color: '#03dac5',
         fontSize: '18px',
         fontWeight: 'bold',
     },
@@ -135,6 +148,10 @@ const styles = {
     fileInput: {
         padding: '10px',
         fontSize: '14px',
+        color: '#e0e0e0',
+        backgroundColor: '#333',
+        border: '1px solid #555',
+        borderRadius: '5px',
         marginBottom: '10px',
     },
     uploadButton: {
@@ -142,41 +159,39 @@ const styles = {
         fontSize: '14px',
         fontWeight: 'bold',
         color: '#fff',
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#bb86fc',
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
         transition: 'background-color 0.3s',
     },
-    uploadButtonHover: {
-        backgroundColor: '#45a049',
-    },
     loading: {
         fontSize: '16px',
-        color: '#888',
+        color: '#f1c40f',
         margin: '10px 0',
     },
     fileContentContainer: {
-        backgroundColor: '#f8f8f8',
+        backgroundColor: '#2e2e2e',
         padding: '10px',
         borderRadius: '5px',
-        boxShadow: '0 0 5px rgba(0,0,0,0.1)',
+        boxShadow: '0 0 5px rgba(0,0,0,0.3)',
         textAlign: 'left',
         whiteSpace: 'pre-wrap',
         overflowY: 'auto',
         maxHeight: '200px',
     },
     fileContent: {
-        margin: '0',
-        color: '#333',
+        color: '#cfcfcf',
         fontSize: '14px',
     },
     input: {
         width: '100%',
         padding: '10px',
         fontSize: '14px',
+        color: '#e0e0e0',
+        backgroundColor: '#333',
         borderRadius: '5px',
-        border: '1px solid #ccc',
+        border: '1px solid #555',
         marginBottom: '10px',
         boxSizing: 'border-box',
     },
@@ -185,7 +200,7 @@ const styles = {
         fontSize: '14px',
         fontWeight: 'bold',
         color: '#fff',
-        backgroundColor: '#008CBA',
+        backgroundColor: '#03dac5',
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
@@ -196,9 +211,9 @@ const styles = {
         textAlign: 'left',
     },
     responseText: {
-        color: '#333',
+        color: '#cfcfcf',
         fontSize: '16px',
-        backgroundColor: '#e6f7ff',
+        backgroundColor: '#333',
         padding: '10px',
         borderRadius: '5px',
     }
